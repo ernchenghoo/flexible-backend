@@ -23,7 +23,7 @@ public class MainController {
 	}
 
 	@GetMapping("/cars")
-	DataResponse all() {
+	DataResponse all(@RequestHeader("X-DeviceOS") String deviceOs) {
 		ArrayList<Car> carList = new ArrayList<Car>(repository.findAll());
 		return new DataResponse(true, "Success", carList);
 	}
