@@ -1,4 +1,4 @@
 package com.example.flexiblebackend.security;
 
-public class PasswordEncoder {
-}
+import org.springframework.context.annotation.Bean;
+

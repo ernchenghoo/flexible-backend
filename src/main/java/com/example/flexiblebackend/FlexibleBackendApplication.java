@@ -13,6 +13,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
 public class FlexibleBackendApplication {
@@ -23,6 +24,11 @@ public class FlexibleBackendApplication {
 		SpringApplication app = new SpringApplication(FlexibleBackendApplication.class);
         app.setDefaultProperties(Collections.singletonMap("server.port", "8083"));
         app.run(args);
+	}
+
+
+	@Bean public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 //	@Bean

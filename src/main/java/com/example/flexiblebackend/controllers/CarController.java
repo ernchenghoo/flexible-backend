@@ -13,11 +13,11 @@ import java.util.List;
 
 
 @RestController
-public class MainController {
+public class CarController {
 
 	private final CarRepository repository;
 
-	MainController(CarRepository repository) {
+	CarController(CarRepository repository) {
 		this.repository = repository;
 
 	}

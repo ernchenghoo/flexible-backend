@@ -1,21 +1,27 @@
 package com.example.flexiblebackend.security;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.example.flexiblebackend.models.User;
+import com.example.flexiblebackend.models.ApplicationUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -24,15 +30,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
 
-        setFilterProcessesUrl(SecurityCredentials.SIGN_UP_URL);
+        setFilterProcessesUrl("/authentication/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
         try {
-            User creds = new ObjectMapper()
-                    .readValue(req.getInputStream(), User.class);
+            System.out.println("Attempt authentication");
+            ApplicationUser creds = new ObjectMapper()
+                    .readValue(req.getInputStream(), ApplicationUser.class);
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -41,6 +48,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             new ArrayList<>())
             );
         } catch (IOException e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
             throw new RuntimeException(e);
         }
     }
@@ -49,15 +57,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException {
+                                            Authentication auth) throws IOException, ServletException {
+        System.out.println("Successful authentication");
         String token = JWT.create()
-                .withSubject(((User) auth.getPrincipal()).getEmail())
+                .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityCredentials.EXPIRATION_TIME))
-                .sign(Algorithm.HMAC512(SecurityCredentials.SECRET.getBytes()));
-
-        String body = ((User) auth.getPrincipal()).getEmail() + " " + token;
-
-        res.getWriter().write(body);
-        res.getWriter().flush();
+                .sign(HMAC512(SecurityCredentials.SECRET.getBytes()));
+        HashMap<String, String> accessToken = new HashMap<String, String>();
+        accessToken.put("email", ((User) auth.getPrincipal()).getUsername());
+        accessToken.put(SecurityCredentials.HEADER_STRING, SecurityCredentials.TOKEN_PREFIX + token);
+        JSONObject json = new JSONObject(accessToken);
+        res.getWriter().write(json.toString());
     }
 }

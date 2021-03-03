@@ -1,4 +1,8 @@
 package com.example.flexiblebackend.repositories;
 
-public interface UserRepository {
+import com.example.flexiblebackend.models.ApplicationUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<ApplicationUser, String> {
+    ApplicationUser findByEmail(String email);
 }

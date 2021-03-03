@@ -12,8 +12,6 @@ public class Car {
     @Column(name="modelName")
     private String modelName;
 
-
-
     protected Car() {}
 
     public Car(String modelName) {

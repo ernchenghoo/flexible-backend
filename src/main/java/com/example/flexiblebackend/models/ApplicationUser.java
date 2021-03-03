@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 @Entity
-public class User implements Serializable {
+public class ApplicationUser implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,13 +17,13 @@ public class User implements Serializable {
     @Column(name="EMAIL", nullable = false, unique = true)
     private String email;
 
-    @Column(name="PASSWORD", nullable = false, unique = true)
+    @Column(name="PASSWORD", nullable = false)
     private String password;
 
-    @Column(name="FIRST_NAME", nullable = false, unique = true)
+    @Column(name="FIRST_NAME", nullable = false)
     private String firstName;
 
-    @Column(name="LAST_NAME", nullable = false, unique = true)
+    @Column(name="LAST_NAME", nullable = false)
     private String lastName;
 
     public Long getId() {
