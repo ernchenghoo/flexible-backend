@@ -1,9 +1,11 @@
 package com.example.flexiblebackend.security;
 
 import com.auth0.jwt.JWT;
+import com.example.flexiblebackend.EmptyResponse;
 import com.example.flexiblebackend.models.ApplicationUser;
+import com.example.flexiblebackend.models.LoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
@@ -63,10 +64,15 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityCredentials.EXPIRATION_TIME))
                 .sign(HMAC512(SecurityCredentials.SECRET.getBytes()));
-        HashMap<String, String> accessToken = new HashMap<String, String>();
-        accessToken.put("email", ((User) auth.getPrincipal()).getUsername());
-        accessToken.put(SecurityCredentials.HEADER_STRING, SecurityCredentials.TOKEN_PREFIX + token);
-        JSONObject json = new JSONObject(accessToken);
-        res.getWriter().write(json.toString());
+        LoginResponse response = new LoginResponse(((User) auth.getPrincipal()).getUsername(), SecurityCredentials.TOKEN_PREFIX + token);
+        res.getWriter().write(new Gson().toJson(response));
+
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        System.out.println("Unsuccessful authentication");
+        EmptyResponse failureResponse = new EmptyResponse(false, "Invalid username or password");
+        response.getWriter().write(new Gson().toJson(failureResponse));
     }
 }

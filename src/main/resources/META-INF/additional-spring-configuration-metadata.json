@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "/*",
+      "type": "java.lang.String",
+      "description": "Description for /*."
+    },
+    {
+      "name": "/*",
+      "type": "java.lang.String",
+      "description": "Description for /*."
+    }
+  ] }
